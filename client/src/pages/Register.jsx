@@ -1,6 +1,7 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { register as registerApi } from "../services/authService";
 import "../styles/register.css";
 
@@ -12,21 +13,25 @@ function Register() {
   const [error, setError] = useState(null);
 
   const { login } = useContext(AuthContext);
+  const { addToast } = useToast();
   const navigate = useNavigate();
+  const usernameRef = useRef(null);
 
   useEffect(() => {
     document.title = "Register | LinkForge";
+    usernameRef.current?.focus();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
     setIsLoading(true);
     setError(null);
 
     try {
       const data = await registerApi(username, email, password);
-      // data contains: { token, user: { id, username, email } }
       login(data.user, data.token);
+      addToast(`Welcome to LinkForge, ${data.user.username}!`, "success");
       navigate("/dashboard");
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
@@ -44,23 +49,25 @@ function Register() {
           <h2>Create your account</h2>
 
           {error && (
-            <div className="auth-error">
-              <span>⚠️</span>
+            <div className="auth-error" role="alert">
+              <span aria-hidden="true">⚠️</span>
               <span>{error}</span>
             </div>
           )}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="form-group">
               <label htmlFor="username">Username</label>
               <input
                 id="username"
+                ref={usernameRef}
                 type="text"
                 className="auth-input"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
                 required
+                autoComplete="username"
               />
             </div>
 
@@ -74,6 +81,7 @@ function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -87,6 +95,7 @@ function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
+                autoComplete="new-password"
               />
             </div>
 
@@ -94,8 +103,16 @@ function Register() {
               type="submit"
               className="btn-auth"
               disabled={isLoading}
+              aria-busy={isLoading}
             >
-              {isLoading ? "Creating account..." : "Sign up"}
+              {isLoading ? (
+                <>
+                  <span className="spinner-inline" aria-hidden="true"></span>
+                  <span>Creating account…</span>
+                </>
+              ) : (
+                "Sign up"
+              )}
             </button>
           </form>
 

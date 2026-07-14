@@ -1,11 +1,14 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { createShortUrl } from "../services/urlService";
 import "../styles/home.css";
 
 function Home() {
   const { isAuthenticated, logout } = useContext(AuthContext);
+  const { addToast } = useToast();
+
   const [url, setUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
   const [expiration, setExpiration] = useState("never");
@@ -14,25 +17,37 @@ function Home() {
   const [successData, setSuccessData] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
 
+  const urlInputRef = useRef(null);
+
   useEffect(() => {
     document.title = "Home | LinkForge";
+    urlInputRef.current?.focus();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+
+    const trimmedUrl = url.trim();
+    const trimmedAlias = customAlias.trim();
+
+    if (!trimmedUrl) return;
+
     setIsLoading(true);
     setError(null);
     setSuccessData(null);
 
     try {
-      const data = await createShortUrl(url, customAlias, expiration);
+      const data = await createShortUrl(trimmedUrl, trimmedAlias, expiration);
       setSuccessData(data);
-      setUrl(""); // Reset URL input on success
-      setCustomAlias(""); // Reset alias field on success
-      setExpiration("never"); // Reset expiration choice
+      setUrl("");
+      setCustomAlias("");
+      setExpiration("never");
+      addToast("Short URL created!", "success");
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
       setError(msg);
+      addToast(msg, "error");
     } finally {
       setIsLoading(false);
     }
@@ -43,12 +58,16 @@ function Home() {
     try {
       await navigator.clipboard.writeText(successData.shortUrl);
       setIsCopied(true);
-      setTimeout(() => {
-        setIsCopied(false);
-      }, 2000);
-    } catch (err) {
-      console.error("Failed to copy URL to clipboard:", err);
+      setTimeout(() => setIsCopied(false), 2000);
+      addToast("Link copied to clipboard!", "success");
+    } catch {
+      addToast("Failed to copy link.", "error");
     }
+  };
+
+  const handleLogout = () => {
+    addToast("You've been logged out.", "info");
+    setTimeout(() => logout(), 300);
   };
 
   return (
@@ -60,7 +79,7 @@ function Home() {
           {isAuthenticated ? (
             <>
               <Link to="/dashboard" className="btn btn-secondary">Dashboard</Link>
-              <button onClick={logout} className="btn btn-primary">Logout</button>
+              <button type="button" onClick={handleLogout} className="btn btn-primary">Logout</button>
             </>
           ) : (
             <>
@@ -71,40 +90,45 @@ function Home() {
         </div>
       </nav>
 
-      {/* Main Content Container */}
+      {/* Main Content */}
       <main className="container">
-        {/* Hero Section */}
+        {/* Hero */}
         <section className="hero">
           <h1>Shorten your URLs instantly.</h1>
           <p>Create clean, shareable links and track them effortlessly.</p>
         </section>
 
-        {/* Shortener Form Card */}
+        {/* Shortener Card */}
         <div className="shortener-card">
-          <form className="shortener-form" onSubmit={handleSubmit}>
+          <form className="shortener-form" onSubmit={handleSubmit} noValidate>
             <div className="form-group-wrapper">
               <div className="input-group">
-                <label className="input-label">Destination URL</label>
+                <label className="input-label" htmlFor="destination-url">Destination URL</label>
                 <input
-                  type="text"
+                  id="destination-url"
+                  ref={urlInputRef}
+                  type="url"
                   className="url-input"
-                  placeholder="Paste your long URL here..."
+                  placeholder="Paste your long URL here…"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isLoading}
                   required
+                  autoComplete="url"
                 />
               </div>
 
               <div className="input-group">
-                <label className="input-label">Custom Alias (Optional)</label>
+                <label className="input-label" htmlFor="custom-alias">Custom Alias (Optional)</label>
                 <input
+                  id="custom-alias"
                   type="text"
                   className="url-input"
                   placeholder="my-link"
                   value={customAlias}
                   onChange={(e) => setCustomAlias(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="off"
                 />
                 <span className="input-help-text">Leave blank to generate a random code automatically.</span>
               </div>
@@ -129,12 +153,13 @@ function Home() {
             <button
               type="submit"
               className="btn btn-primary btn-shorten"
-              disabled={isLoading}
+              disabled={isLoading || !url.trim()}
+              aria-busy={isLoading}
             >
               {isLoading ? (
                 <>
-                  <span className="spinner-inline"></span>
-                  <span>Shortening...</span>
+                  <span className="spinner-inline" aria-hidden="true"></span>
+                  <span>Shortening…</span>
                 </>
               ) : (
                 "Shorten URL"
@@ -144,8 +169,8 @@ function Home() {
 
           {/* Error Message */}
           {error && (
-            <div className="error-message">
-              <span>⚠️</span>
+            <div className="error-message" role="alert">
+              <span aria-hidden="true">⚠️</span>
               <span>{error}</span>
             </div>
           )}
@@ -155,7 +180,7 @@ function Home() {
             {successData ? (
               <div className="success-card">
                 <p className="success-message">
-                  <span>🎉</span>
+                  <span aria-hidden="true">🎉</span>
                   <span>{successData.message || "Short URL created successfully!"}</span>
                 </p>
                 <div className="result-display">
@@ -168,8 +193,10 @@ function Home() {
                     {successData.shortUrl}
                   </a>
                   <button
+                    type="button"
                     onClick={handleCopy}
                     className={`btn-copy ${isCopied ? "copied" : ""}`}
+                    aria-label={isCopied ? "Copied!" : "Copy short URL"}
                   >
                     {isCopied ? "✓ Copied!" : "Copy"}
                   </button>
