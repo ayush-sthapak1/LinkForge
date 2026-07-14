@@ -6,7 +6,7 @@ function createToken(id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 }
 
-async function register(req, res) {
+async function register(req, res,next) {
     try {
         const { username, email, password } = req.body;
 
@@ -41,13 +41,11 @@ async function register(req, res) {
             },
         });
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-async function login(req, res) {
+async function login(req, res,next) {
     try {
         const { email, password } = req.body;
 
@@ -81,9 +79,7 @@ async function login(req, res) {
             },
         });
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 

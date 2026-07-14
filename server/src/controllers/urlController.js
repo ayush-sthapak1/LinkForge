@@ -2,7 +2,7 @@ const Url = require("../models/Url");
 const validator = require("validator");
 const { generateUniqueShortCode } = require("../services/shortCodeService");
 
-async function createShortUrl(req, res) {
+async function createShortUrl(req, res,user) {
     try {
         const { originalUrl } = req.body;
 
@@ -35,13 +35,11 @@ async function createShortUrl(req, res) {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-async function redirectToOriginalUrl(req, res) {
+async function redirectToOriginalUrl(req, res,user) {
     try {
         const { shortCode } = req.params;
 
@@ -66,13 +64,11 @@ async function redirectToOriginalUrl(req, res) {
         return res.redirect(url.originalUrl);
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-async function getAllUrls(req, res) {
+async function getAllUrls(req, res,user) {
     try {
         const urls = await Url.find().sort({ createdAt: -1 });
 
@@ -82,12 +78,10 @@ async function getAllUrls(req, res) {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
-async function deleteUrl(req, res) {
+async function deleteUrl(req, res,user) {
     try {
         const { id } = req.params;
 
@@ -104,13 +98,11 @@ async function deleteUrl(req, res) {
         });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
-async function updateUrl(req, res) {
+async function updateUrl(req, res,user) {
     try {
         const { id } = req.params;
         const { originalUrl } = req.body;
@@ -145,9 +137,7 @@ async function updateUrl(req, res) {
             });
 
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+        next(error);
     }
 }
 
