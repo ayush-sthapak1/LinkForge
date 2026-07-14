@@ -193,6 +193,9 @@ function Dashboard() {
                         >
                           {getAbsoluteShortUrl(item.shortCode)}
                         </a>
+                        <span className={`alias-badge ${item.isCustom ? "custom-badge" : "auto-badge"}`}>
+                          {item.isCustom ? "Custom" : "Auto"}
+                        </span>
                         <span className="click-badge">
                           {item.clickCount || 0} clicks
                         </span>

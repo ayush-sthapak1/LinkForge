@@ -7,6 +7,7 @@ import "../styles/home.css";
 function Home() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const [url, setUrl] = useState("");
+  const [customAlias, setCustomAlias] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successData, setSuccessData] = useState(null);
@@ -23,8 +24,9 @@ function Home() {
     setSuccessData(null);
 
     try {
-      const data = await createShortUrl(url);
+      const data = await createShortUrl(url, customAlias);
       setSuccessData(data);
+      setCustomAlias(""); // Reset alias field on success
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
       setError(msg);
@@ -77,15 +79,34 @@ function Home() {
         {/* Shortener Form Card */}
         <div className="shortener-card">
           <form className="shortener-form" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              className="url-input"
-              placeholder="Paste your long URL here..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              disabled={isLoading}
-              required
-            />
+            <div className="form-group-wrapper">
+              <div className="input-group">
+                <label className="input-label">Destination URL</label>
+                <input
+                  type="text"
+                  className="url-input"
+                  placeholder="Paste your long URL here..."
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Custom Alias (Optional)</label>
+                <input
+                  type="text"
+                  className="url-input"
+                  placeholder="my-link"
+                  value={customAlias}
+                  onChange={(e) => setCustomAlias(e.target.value)}
+                  disabled={isLoading}
+                />
+                <span className="input-help-text">Leave blank to generate a random code automatically.</span>
+              </div>
+            </div>
+
             <button
               type="submit"
               className="btn btn-primary btn-shorten"
@@ -97,7 +118,7 @@ function Home() {
                   <span>Shortening...</span>
                 </>
               ) : (
-                "Shorten"
+                "Shorten URL"
               )}
             </button>
           </form>

@@ -28,6 +28,11 @@ const urlSchema = new mongoose.Schema(
             ref: "User",
             default: null,
         },
+
+        isCustom: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,

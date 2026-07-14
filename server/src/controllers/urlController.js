@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 async function createShortUrl(req, res, next) {
     try {
-        const { originalUrl } = req.body;
+        const { originalUrl, customAlias } = req.body;
 
         // Validate input
         if (!originalUrl) {
@@ -20,8 +20,32 @@ async function createShortUrl(req, res, next) {
             });
         }
 
-        // Generate a unique short code
-        const shortCode = await generateUniqueShortCode();
+        // Process shortCode (alias vs auto-generated)
+        let shortCode = "";
+        let isCustom = false;
+
+        if (customAlias && customAlias.trim() !== "") {
+            const trimmedAlias = customAlias.trim();
+            const aliasRegex = /^[a-zA-Z0-9_-]+$/;
+            if (!aliasRegex.test(trimmedAlias)) {
+                return res.status(400).json({
+                    message: "Custom alias can only contain letters, numbers, hyphens, and underscores.",
+                });
+            }
+
+            const existingAlias = await Url.findOne({ shortCode: trimmedAlias });
+            if (existingAlias) {
+                return res.status(409).json({
+                    message: "Custom alias is already taken.",
+                });
+            }
+
+            shortCode = trimmedAlias;
+            isCustom = true;
+        } else {
+            shortCode = await generateUniqueShortCode();
+            isCustom = false;
+        }
 
         // Extract user from token if present
         let userId = null;
@@ -40,6 +64,7 @@ async function createShortUrl(req, res, next) {
         const newUrl = await Url.create({
             originalUrl,
             shortCode,
+            isCustom,
             user: userId,
         });
 
