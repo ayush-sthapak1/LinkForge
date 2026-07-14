@@ -7,7 +7,7 @@ const { createShortUrl, getAllUrls, deleteUrl, updateUrl } = require("../control
 
 router.post("/", createShortUrl);
 router.get("/", protect, getAllUrls);
-router.delete("/:id", deleteUrl);
-router.patch("/:id", updateUrl);
+router.delete("/:id", protect, deleteUrl);
+router.patch("/:id", protect, updateUrl);
 
 module.exports = router;

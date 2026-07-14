@@ -4,6 +4,7 @@ const cors = require("cors");
 const urlRoutes = require("./routes/urlRoutes");
 const authRoutes = require("./routes/authRoutes");
 const { redirectToOriginalUrl } = require("./controllers/urlController");
+const errorHandler = require("./middleware/errorHandler");
 
 
 const app = express();

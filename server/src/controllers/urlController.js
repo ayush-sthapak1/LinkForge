@@ -1,8 +1,9 @@
 const Url = require("../models/Url");
 const validator = require("validator");
 const { generateUniqueShortCode } = require("../services/shortCodeService");
+const jwt = require("jsonwebtoken");
 
-async function createShortUrl(req, res,user) {
+async function createShortUrl(req, res, next) {
     try {
         const { originalUrl } = req.body;
 
@@ -22,10 +23,24 @@ async function createShortUrl(req, res,user) {
         // Generate a unique short code
         const shortCode = await generateUniqueShortCode();
 
+        // Extract user from token if present
+        let userId = null;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            try {
+                const token = authHeader.split(" ")[1];
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (err) {
+                // Ignore invalid token
+            }
+        }
+
         // Save URL
         const newUrl = await Url.create({
             originalUrl,
             shortCode,
+            user: userId,
         });
 
         return res.status(201).json({
@@ -39,7 +54,7 @@ async function createShortUrl(req, res,user) {
     }
 }
 
-async function redirectToOriginalUrl(req, res,user) {
+async function redirectToOriginalUrl(req, res, next) {
     try {
         const { shortCode } = req.params;
 
@@ -68,9 +83,9 @@ async function redirectToOriginalUrl(req, res,user) {
     }
 }
 
-async function getAllUrls(req, res,user) {
+async function getAllUrls(req, res, next) {
     try {
-        const urls = await Url.find().sort({ createdAt: -1 });
+        const urls = await Url.find({ user: req.user.id }).sort({ createdAt: -1 });
 
         return res.status(200).json({
             count: urls.length,
@@ -81,7 +96,7 @@ async function getAllUrls(req, res,user) {
         next(error);
     }
 }
-async function deleteUrl(req, res,user) {
+async function deleteUrl(req, res, next) {
     try {
         const { id } = req.params;
 
@@ -102,7 +117,7 @@ async function deleteUrl(req, res,user) {
     }
 }
 
-async function updateUrl(req, res,user) {
+async function updateUrl(req, res, next) {
     try {
         const { id } = req.params;
         const { originalUrl } = req.body;
