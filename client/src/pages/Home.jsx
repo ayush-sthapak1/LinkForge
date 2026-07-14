@@ -1,14 +1,43 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { createShortUrl } from "../services/urlService";
 import "../styles/home.css";
 
 function Home() {
   const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successData, setSuccessData] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Do not connect to the backend yet. State only.
-    console.log("Shortening URL (local state):", url);
+    setIsLoading(true);
+    setError(null);
+    setSuccessData(null);
+
+    try {
+      const data = await createShortUrl(url);
+      setSuccessData(data);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
+      setError(msg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!successData?.shortUrl) return;
+    try {
+      await navigator.clipboard.writeText(successData.shortUrl);
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy URL to clipboard:", err);
+    }
   };
 
   return (
@@ -39,16 +68,46 @@ function Home() {
               placeholder="Paste your long URL here..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              disabled={isLoading}
               required
             />
-            <button type="submit" className="btn btn-primary btn-shorten">
-              Shorten
+            <button
+              type="submit"
+              className="btn btn-primary btn-shorten"
+              disabled={isLoading}
+            >
+              {isLoading ? "Shortening..." : "Shorten"}
             </button>
           </form>
 
-          {/* Result Area Placeholder */}
+          {/* Error Message */}
+          {error && <div className="error-message">{error}</div>}
+
+          {/* Result Area */}
           <div className="result-section">
-            <p className="placeholder-text">No URL generated yet.</p>
+            {successData ? (
+              <div className="success-card">
+                <p className="success-message">{successData.message || "Short URL created successfully!"}</p>
+                <div className="result-display">
+                  <a
+                    href={successData.shortUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="short-url-link"
+                  >
+                    {successData.shortUrl}
+                  </a>
+                  <button
+                    onClick={handleCopy}
+                    className={`btn-copy ${isCopied ? "copied" : ""}`}
+                  >
+                    {isCopied ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="placeholder-text">No URL generated yet.</p>
+            )}
           </div>
         </div>
       </main>
