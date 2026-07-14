@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { getAllUrls, deleteUrl, updateUrl } from "../services/urlService";
+import QRModal from "../components/common/QRModal";
 import "../styles/dashboard.css";
 
 function Dashboard() {
@@ -16,6 +17,9 @@ function Dashboard() {
   
   // State for copy feedbacks
   const [copiedId, setCopiedId] = useState(null);
+
+  // State for QR modal
+  const [qrUrl, setQrUrl] = useState(null);
 
   useEffect(() => {
     document.title = "Dashboard | LinkForge";
@@ -145,7 +149,8 @@ function Dashboard() {
   }
 
   return (
-    <div>
+    <>
+      <div>
       {/* Navbar */}
       <nav className="navbar">
         <Link to="/" className="logo">LinkForge</Link>
@@ -264,6 +269,12 @@ function Dashboard() {
                           {copiedId === item._id ? "✓ Copied!" : "Copy"}
                         </button>
                         <button
+                          onClick={() => setQrUrl(getAbsoluteShortUrl(item.shortCode))}
+                          className="btn-action"
+                        >
+                          View QR
+                        </button>
+                        <button
                           onClick={() => handleEditStart(item._id, item.originalUrl)}
                           className="btn-action"
                         >
@@ -284,7 +295,13 @@ function Dashboard() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+
+      {/* QR Code Modal */}
+      {qrUrl && (
+        <QRModal url={qrUrl} onClose={() => setQrUrl(null)} />
+      )}
+    </>
   );
 }
 
