@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { register as registerApi } from "../services/authService";
@@ -13,6 +13,10 @@ function Register() {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Register | LinkForge";
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +43,12 @@ function Register() {
           <Link to="/" className="auth-logo">LinkForge</Link>
           <h2>Create your account</h2>
 
-          {error && <div className="auth-error">{error}</div>}
+          {error && (
+            <div className="auth-error">
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">

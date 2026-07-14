@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { createShortUrl } from "../services/urlService";
@@ -11,6 +11,10 @@ function Home() {
   const [error, setError] = useState(null);
   const [successData, setSuccessData] = useState(null);
   const [isCopied, setIsCopied] = useState(false);
+
+  useEffect(() => {
+    document.title = "Home | LinkForge";
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +74,7 @@ function Home() {
           <p>Create clean, shareable links and track them effortlessly.</p>
         </section>
 
-        {/* Shortener Card */}
+        {/* Shortener Form Card */}
         <div className="shortener-card">
           <form className="shortener-form" onSubmit={handleSubmit}>
             <input
@@ -87,18 +91,33 @@ function Home() {
               className="btn btn-primary btn-shorten"
               disabled={isLoading}
             >
-              {isLoading ? "Shortening..." : "Shorten"}
+              {isLoading ? (
+                <>
+                  <span className="spinner-inline"></span>
+                  <span>Shortening...</span>
+                </>
+              ) : (
+                "Shorten"
+              )}
             </button>
           </form>
 
           {/* Error Message */}
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message">
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
 
           {/* Result Area */}
           <div className="result-section">
             {successData ? (
               <div className="success-card">
-                <p className="success-message">{successData.message || "Short URL created successfully!"}</p>
+                <p className="success-message">
+                  <span>🎉</span>
+                  <span>{successData.message || "Short URL created successfully!"}</span>
+                </p>
                 <div className="result-display">
                   <a
                     href={successData.shortUrl}
@@ -112,7 +131,7 @@ function Home() {
                     onClick={handleCopy}
                     className={`btn-copy ${isCopied ? "copied" : ""}`}
                   >
-                    {isCopied ? "Copied!" : "Copy"}
+                    {isCopied ? "✓ Copied!" : "Copy"}
                   </button>
                 </div>
               </div>

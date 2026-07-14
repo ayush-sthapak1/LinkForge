@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { login as loginApi } from "../services/authService";
@@ -12,6 +12,10 @@ function Login() {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Login | LinkForge";
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +42,12 @@ function Login() {
           <Link to="/" className="auth-logo">LinkForge</Link>
           <h2>Log in to your account</h2>
 
-          {error && <div className="auth-error">{error}</div>}
+          {error && (
+            <div className="auth-error">
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
+          )}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">

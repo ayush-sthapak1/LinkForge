@@ -17,6 +17,11 @@ function Dashboard() {
   // State for copy feedbacks
   const [copiedId, setCopiedId] = useState(null);
 
+  useEffect(() => {
+    document.title = "Dashboard | LinkForge";
+    fetchUrls();
+  }, []);
+
   const fetchUrls = async () => {
     setIsLoading(true);
     setError(null);
@@ -30,10 +35,6 @@ function Dashboard() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchUrls();
-  }, []);
 
   const getAbsoluteShortUrl = (shortCode) => {
     const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
@@ -62,7 +63,7 @@ function Dashboard() {
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Failed to delete URL.";
       setError(msg);
-      // Re-fetch in case of failure to sync UI
+      // Re-fetch to sync state in case of failure
       fetchUrls();
     }
   };
@@ -102,7 +103,10 @@ function Dashboard() {
           <Link to="/" className="logo">LinkForge</Link>
           <button onClick={logout} className="btn-logout">Logout</button>
         </nav>
-        <div className="loading-view">Loading...</div>
+        <div className="loading-view">
+          <div className="spinner-large"></div>
+          <p className="loading-text">Fetching your dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -117,7 +121,12 @@ function Dashboard() {
 
       <div className="dashboard-container">
         {/* Error Banner */}
-        {error && <div className="error-banner">{error}</div>}
+        {error && (
+          <div className="error-banner">
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
 
         {/* Dashboard Title */}
         <div className="dashboard-header">
@@ -192,10 +201,12 @@ function Dashboard() {
                       
                       <div className="url-metadata">
                         <div className="meta-item">
-                          Created: {new Date(item.createdAt).toLocaleDateString()}
+                          <span>📅</span>
+                          <span>Created: {new Date(item.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
                         </div>
                         <div className="meta-item">
-                          Last Visited: {item.lastVisited ? new Date(item.lastVisited).toLocaleString() : "Never"}
+                          <span>🕒</span>
+                          <span>Last Visited: {item.lastVisited ? new Date(item.lastVisited).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Never"}</span>
                         </div>
                       </div>
                     </div>
@@ -203,9 +214,9 @@ function Dashboard() {
                     <div className="url-actions">
                       <button
                         onClick={() => handleCopy(item._id, item.shortCode)}
-                        className={`btn-action ${copiedId === item._id ? "btn-action-copied" : ""}`}
+                        className={`btn-action btn-action-copy ${copiedId === item._id ? "btn-action-copied" : ""}`}
                       >
-                        {copiedId === item._id ? "Copied!" : "Copy"}
+                        {copiedId === item._id ? "✓ Copied!" : "Copy"}
                       </button>
                       <button
                         onClick={() => handleEditStart(item._id, item.originalUrl)}
