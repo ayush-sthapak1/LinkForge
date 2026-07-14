@@ -76,7 +76,10 @@ async function getAllUrls(req, res) {
     try {
         const urls = await Url.find().sort({ createdAt: -1 });
 
-        return res.status(200).json(urls);
+        return res.status(200).json({
+            count: urls.length,
+            urls,
+        });
 
     } catch (error) {
         return res.status(500).json({
@@ -136,7 +139,10 @@ async function updateUrl(req, res) {
             });
         }
 
-        return res.status(200).json(updatedUrl);
+        return res.status(200).json({
+            message: "URL updated successfully",
+            url: updatedUrl,
+            });
 
     } catch (error) {
         return res.status(500).json({
