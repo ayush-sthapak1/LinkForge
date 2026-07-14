@@ -1,7 +1,7 @@
 import api from "./api";
 
-export async function createShortUrl(originalUrl, customAlias) {
-  const response = await api.post("/urls", { originalUrl, customAlias });
+export async function createShortUrl(originalUrl, customAlias, expiration) {
+  const response = await api.post("/urls", { originalUrl, customAlias, expiration });
   return response.data;
 }
 

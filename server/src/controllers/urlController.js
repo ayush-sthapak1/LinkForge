@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 async function createShortUrl(req, res, next) {
     try {
-        const { originalUrl, customAlias } = req.body;
+        const { originalUrl, customAlias, expiration } = req.body;
 
         // Validate input
         if (!originalUrl) {
@@ -47,6 +47,16 @@ async function createShortUrl(req, res, next) {
             isCustom = false;
         }
 
+        // Calculate expiresAt
+        let expiresAt = null;
+        if (expiration === "1day") {
+            expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        } else if (expiration === "7days") {
+            expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        } else if (expiration === "30days") {
+            expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        }
+
         // Extract user from token if present
         let userId = null;
         const authHeader = req.headers.authorization;
@@ -65,6 +75,7 @@ async function createShortUrl(req, res, next) {
             originalUrl,
             shortCode,
             isCustom,
+            expiresAt,
             user: userId,
         });
 
@@ -88,6 +99,13 @@ async function redirectToOriginalUrl(req, res, next) {
         if (!url) {
             return res.status(404).json({
                 message: "URL not found",
+            });
+        }
+
+        // Check if link has expired
+        if (url.expiresAt && new Date() > url.expiresAt) {
+            return res.status(410).json({
+                message: "This link has expired.",
             });
         }
 

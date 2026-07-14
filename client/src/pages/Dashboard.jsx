@@ -42,6 +42,39 @@ function Dashboard() {
     return `${origin}/${shortCode}`;
   };
 
+  const getExpirationDetails = (expiresAt) => {
+    if (!expiresAt) {
+      return {
+        text: "Never",
+        isExpired: false,
+        statusLabel: "Active"
+      };
+    }
+    
+    const expiryDate = new Date(expiresAt);
+    const now = new Date();
+    
+    if (now > expiryDate) {
+      return {
+        text: "Expired",
+        isExpired: true,
+        statusLabel: "Expired"
+      };
+    }
+    
+    const formattedDate = expiryDate.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    });
+    
+    return {
+      text: `Expires ${formattedDate}`,
+      isExpired: false,
+      statusLabel: "Active"
+    };
+  };
+
   const handleCopy = async (id, shortCode) => {
     const shortUrl = getAbsoluteShortUrl(shortCode);
     try {
@@ -157,87 +190,97 @@ function Dashboard() {
           </div>
         ) : (
           <div className="links-list">
-            {urls.map((item) => (
-              <div key={item._id} className="url-card">
-                {editingId === item._id ? (
-                  <div className="edit-form">
-                    <input
-                      type="text"
-                      className="edit-input"
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      required
-                    />
-                    <button
-                      onClick={() => handleEditSave(item._id)}
-                      className="btn-action btn-edit-save"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleEditCancel}
-                      className="btn-action"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="url-info">
-                      <div className="short-url-container">
-                        <a
-                          href={getAbsoluteShortUrl(item.shortCode)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="short-url-link"
-                        >
-                          {getAbsoluteShortUrl(item.shortCode)}
-                        </a>
-                        <span className={`alias-badge ${item.isCustom ? "custom-badge" : "auto-badge"}`}>
-                          {item.isCustom ? "Custom" : "Auto"}
-                        </span>
-                        <span className="click-badge">
-                          {item.clickCount || 0} clicks
-                        </span>
-                      </div>
-                      <p className="original-url">{item.originalUrl}</p>
-                      
-                      <div className="url-metadata">
-                        <div className="meta-item">
-                          <span>📅</span>
-                          <span>Created: {new Date(item.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
-                        </div>
-                        <div className="meta-item">
-                          <span>🕒</span>
-                          <span>Last Visited: {item.lastVisited ? new Date(item.lastVisited).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Never"}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="url-actions">
+            {urls.map((item) => {
+              const exp = getExpirationDetails(item.expiresAt);
+              return (
+                <div key={item._id} className={`url-card ${exp.isExpired ? "url-card-expired" : ""}`}>
+                  {editingId === item._id ? (
+                    <div className="edit-form">
+                      <input
+                        type="text"
+                        className="edit-input"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        required
+                      />
                       <button
-                        onClick={() => handleCopy(item._id, item.shortCode)}
-                        className={`btn-action btn-action-copy ${copiedId === item._id ? "btn-action-copied" : ""}`}
+                        onClick={() => handleEditSave(item._id)}
+                        className="btn-action btn-edit-save"
                       >
-                        {copiedId === item._id ? "✓ Copied!" : "Copy"}
+                        Save
                       </button>
                       <button
-                        onClick={() => handleEditStart(item._id, item.originalUrl)}
+                        onClick={handleEditCancel}
                         className="btn-action"
                       >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="btn-action btn-action-delete"
-                      >
-                        Delete
+                        Cancel
                       </button>
                     </div>
-                  </>
-                )}
-              </div>
-            ))}
+                  ) : (
+                    <>
+                      <div className="url-info">
+                        <div className="short-url-container">
+                          <a
+                            href={getAbsoluteShortUrl(item.shortCode)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="short-url-link"
+                          >
+                            {getAbsoluteShortUrl(item.shortCode)}
+                          </a>
+                          <span className={`alias-badge ${item.isCustom ? "custom-badge" : "auto-badge"}`}>
+                            {item.isCustom ? "Custom" : "Auto"}
+                          </span>
+                          <span className={`status-badge ${exp.isExpired ? "status-expired" : "status-active"}`}>
+                            {exp.statusLabel}
+                          </span>
+                          <span className="click-badge">
+                            {item.clickCount || 0} clicks
+                          </span>
+                        </div>
+                        <p className="original-url">{item.originalUrl}</p>
+                        
+                        <div className="url-metadata">
+                          <div className="meta-item">
+                            <span>📅</span>
+                            <span>Created: {new Date(item.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
+                          </div>
+                          <div className="meta-item">
+                            <span>🕒</span>
+                            <span>Last Visited: {item.lastVisited ? new Date(item.lastVisited).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Never"}</span>
+                          </div>
+                          <div className="meta-item">
+                            <span>⏳</span>
+                            <span>Expiration: {exp.text}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="url-actions">
+                        <button
+                          onClick={() => handleCopy(item._id, item.shortCode)}
+                          className={`btn-action btn-action-copy ${copiedId === item._id ? "btn-action-copied" : ""}`}
+                        >
+                          {copiedId === item._id ? "✓ Copied!" : "Copy"}
+                        </button>
+                        <button
+                          onClick={() => handleEditStart(item._id, item.originalUrl)}
+                          className="btn-action"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className="btn-action btn-action-delete"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

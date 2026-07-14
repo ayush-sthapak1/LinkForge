@@ -33,6 +33,11 @@ const urlSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+
+        expiresAt: {
+            type: Date,
+            default: null,
+        },
     },
     {
         timestamps: true,

@@ -8,6 +8,7 @@ function Home() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const [url, setUrl] = useState("");
   const [customAlias, setCustomAlias] = useState("");
+  const [expiration, setExpiration] = useState("never");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successData, setSuccessData] = useState(null);
@@ -24,9 +25,11 @@ function Home() {
     setSuccessData(null);
 
     try {
-      const data = await createShortUrl(url, customAlias);
+      const data = await createShortUrl(url, customAlias, expiration);
       setSuccessData(data);
+      setUrl(""); // Reset URL input on success
       setCustomAlias(""); // Reset alias field on success
+      setExpiration("never"); // Reset expiration choice
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "An unexpected error occurred.";
       setError(msg);
@@ -104,6 +107,22 @@ function Home() {
                   disabled={isLoading}
                 />
                 <span className="input-help-text">Leave blank to generate a random code automatically.</span>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label" htmlFor="expiration">Expiration</label>
+                <select
+                  id="expiration"
+                  className="url-input select-input"
+                  value={expiration}
+                  onChange={(e) => setExpiration(e.target.value)}
+                  disabled={isLoading}
+                >
+                  <option value="never">Never</option>
+                  <option value="1day">1 Day</option>
+                  <option value="7days">7 Days</option>
+                  <option value="30days">30 Days</option>
+                </select>
               </div>
             </div>
 
