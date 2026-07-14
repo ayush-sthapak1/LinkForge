@@ -1,6 +1,37 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-// TODO: Define URL schema fields (originalUrl, shortCode, user reference, click tracking, etc.)
-const UrlSchema = new mongoose.Schema({});
+const urlSchema = new mongoose.Schema(
+    {
+        originalUrl: {
+            type: String,
+            required: true,
+        },
 
-module.exports = mongoose.model('Url', UrlSchema);
+        shortCode: {
+            type: String,
+            required: true,
+            unique: true,
+        },
+
+        clickCount: {
+            type: Number,
+            default: 0,
+        },
+
+        lastVisited: {
+            type: Date,
+            default: null,
+        },
+
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+    },
+    {
+        timestamps: true,
+    }
+);
+
+module.exports = mongoose.model("Url", urlSchema);

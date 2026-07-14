@@ -1,8 +1,16 @@
-const express = require('express');
+const express = require("express");
+const cors = require("cors");
+
+const urlRoutes = require("./routes/urlRoutes");
+
 const app = express();
 
-// TODO: Register global middlewares (cors, helmet, morgan, express.json)
-// TODO: Register auth, url, and analytics routes
-// TODO: Register central error handler middleware
+app.use(cors());
+app.use(express.json());
+
+app.use("/api/urls", urlRoutes);
+const { redirectToOriginalUrl } = require("./controllers/urlController");
+
+app.get("/:shortCode", redirectToOriginalUrl);
 
 module.exports = app;

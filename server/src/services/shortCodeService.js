@@ -1,15 +1,16 @@
-/**
- * Short Code Service
- * 
- * TODO:
- * - Generate unique URL slugs using nanoID.
- * - Verify generated slugs don't already exist in database to prevent collisions.
- */
-const shortCodeService = {
-  generateCode: async () => {
-    // TODO: Implement unique nanoID generation logic
-    return '';
-  },
-};
+const Url = require("../models/Url");
+const { nanoid } = require("nanoid");
 
-module.exports = shortCodeService;
+async function generateUniqueShortCode() {
+    let shortCode;
+
+    do {
+        shortCode = nanoid(7);
+    } while (await Url.findOne({ shortCode }));
+
+    return shortCode;
+}
+
+module.exports = {
+    generateUniqueShortCode,
+};

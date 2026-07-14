@@ -1,10 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const urlController = require('../controllers/urlController');
+const express = require("express");
 
-// TODO: Bind POST / (shorten URL, optional auth)
-// TODO: Bind GET / (get user URLs, auth required)
-// TODO: Bind DELETE /:id (delete URL, auth required)
-// TODO: Bind GET /:code (redirect short URL to original)
+const router = express.Router();
+
+const { createShortUrl } = require("../controllers/urlController");
+
+router.post("/", createShortUrl);
 
 module.exports = router;
