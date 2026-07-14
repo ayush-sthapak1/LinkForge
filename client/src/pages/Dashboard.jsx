@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { getAllUrls, deleteUrl, updateUrl } from "../services/urlService";
 import "../styles/dashboard.css";
 
 function Dashboard() {
+  const { logout } = useContext(AuthContext);
   const [urls, setUrls] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -98,7 +100,7 @@ function Dashboard() {
       <div>
         <nav className="navbar">
           <Link to="/" className="logo">LinkForge</Link>
-          <button className="btn-logout" disabled>Logout</button>
+          <button onClick={logout} className="btn-logout">Logout</button>
         </nav>
         <div className="loading-view">Loading...</div>
       </div>
@@ -110,7 +112,7 @@ function Dashboard() {
       {/* Navbar */}
       <nav className="navbar">
         <Link to="/" className="logo">LinkForge</Link>
-        <button className="btn-logout" disabled>Logout</button>
+        <button onClick={logout} className="btn-logout">Logout</button>
       </nav>
 
       <div className="dashboard-container">

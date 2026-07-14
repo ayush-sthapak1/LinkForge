@@ -1,0 +1,128 @@
+/* Common styles for Login and Register pages */
+.auth-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f8fafc;
+  box-sizing: border-box;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.auth-card {
+  background-color: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.auth-logo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.auth-card h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1.5rem 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.auth-input {
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  outline: none;
+  background-color: #ffffff;
+  color: #0f172a;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.btn-auth {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background-color: #2563eb;
+  border: 1px solid #2563eb;
+  color: #ffffff;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+  transition: background-color 0.15s ease;
+}
+
+.btn-auth:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.btn-auth:disabled {
+  background-color: #93c5fd;
+  border-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.auth-error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fee2e2;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.auth-footer a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}

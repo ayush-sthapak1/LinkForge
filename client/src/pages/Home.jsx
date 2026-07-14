@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { createShortUrl } from "../services/urlService";
 import "../styles/home.css";
 
 function Home() {
+  const { isAuthenticated, logout } = useContext(AuthContext);
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -46,8 +48,17 @@ function Home() {
       <nav className="navbar">
         <Link to="/" className="logo">LinkForge</Link>
         <div className="nav-links">
-          <Link to="/login" className="btn btn-secondary">Login</Link>
-          <Link to="/register" className="btn btn-primary">Register</Link>
+          {isAuthenticated ? (
+            <>
+              <Link to="/dashboard" className="btn btn-secondary">Dashboard</Link>
+              <button onClick={logout} className="btn btn-primary">Logout</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn-secondary">Login</Link>
+              <Link to="/register" className="btn btn-primary">Register</Link>
+            </>
+          )}
         </div>
       </nav>
 
