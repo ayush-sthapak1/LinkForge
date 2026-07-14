@@ -2,15 +2,15 @@
 .confirm-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 1.5rem;
+  padding: var(--space-4);
   box-sizing: border-box;
-  animation: confirmFadeIn 0.2s ease-out;
+  animation: confirmFadeIn 0.15s ease-out;
 }
 
 @keyframes confirmFadeIn {
@@ -20,97 +20,88 @@
 
 /* Modal Card */
 .confirm-modal {
-  background-color: #ffffff;
-  border-radius: 1rem;
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
-  padding: 2.5rem 2rem 2rem;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-primary);
+  padding: var(--space-6);
   width: 100%;
-  max-width: 400px;
+  max-width: 360px;
   text-align: center;
   box-sizing: border-box;
-  animation: confirmScaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: confirmScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes confirmScaleIn {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.95); }
   to   { opacity: 1; transform: scale(1); }
 }
 
 /* Icon */
 .confirm-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: var(--space-2);
   display: block;
 }
 
 /* Title */
 .confirm-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 0.75rem 0;
-  letter-spacing: -0.02em;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
 }
 
 /* Message */
 .confirm-message {
-  font-size: 0.95rem;
-  color: #64748b;
-  line-height: 1.6;
-  margin: 0 0 2rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 var(--space-6) 0;
 }
 
 /* Actions Row */
 .confirm-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--space-2);
   justify-content: center;
 }
 
 /* Buttons */
 .confirm-btn {
   flex: 1;
-  padding: 0.75rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  border-radius: 0.5rem;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
   border: 1px solid transparent;
-  max-width: 160px;
 }
 
 .confirm-btn:active {
-  transform: scale(0.97);
+  transform: translateY(0.5px);
 }
 
 .confirm-btn-cancel {
-  background-color: #f8fafc;
-  color: #475569;
-  border-color: #e2e8f0;
+  background-color: #ffffff;
+  color: var(--text-secondary);
+  border-color: var(--border-primary);
 }
 
 .confirm-btn-cancel:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background-color: var(--border-secondary);
+  color: var(--text-primary);
 }
 
 .confirm-btn-delete {
-  background-color: #dc2626;
+  background-color: var(--color-danger);
   color: #ffffff;
-  border-color: #dc2626;
+  border-color: var(--color-danger);
+  box-shadow: var(--shadow-sm);
 }
 
 .confirm-btn-delete:hover {
-  background-color: #b91c1c;
-  border-color: #b91c1c;
-}
-
-@media (max-width: 480px) {
-  .confirm-modal {
-    padding: 2rem 1.5rem 1.5rem;
-  }
+  background-color: var(--color-danger-hover);
+  border-color: var(--color-danger-hover);
 }

@@ -203,7 +203,13 @@ function Dashboard() {
       <div>
         {/* Navbar */}
         <nav className="navbar">
-          <Link to="/" className="logo">LinkForge</Link>
+          <Link to="/" className="logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="logo-icon" aria-hidden="true">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+            <span>LinkForge</span>
+          </Link>
           <button type="button" onClick={handleLogout} className="btn-logout">Logout</button>
         </nav>
 
@@ -304,131 +310,165 @@ function Dashboard() {
               </button>
             </div>
           ) : (
-            <div className="links-list">
-              {sortedUrls.map((item) => {
-                const exp = getExpirationDetails(item.expiresAt);
-                return (
-                  <div
-                    key={item._id}
-                    className={`url-card ${exp.isExpired ? "url-card-expired" : ""}`}
-                  >
-                    {editingId === item._id ? (
-                      /* ── Edit Mode ── */
-                      <div className="edit-form">
-                        <label htmlFor={`edit-input-${item._id}`} className="visually-hidden">
-                          Edit destination URL
-                        </label>
-                        <input
-                          id={`edit-input-${item._id}`}
-                          type="url"
-                          className="edit-input"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleEditSave(item._id)}
-                          disabled={isSaving}
-                          autoFocus
-                        />
+            <>
+              {/* Desktop Table View */}
+              <div className="desktop-table-view">
+                <table className="links-table">
+                  <thead>
+                    <tr>
+                      <th>Short Link</th>
+                      <th>Destination URL</th>
+                      <th>Clicks</th>
+                      <th>Expiration</th>
+                      <th className="text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedUrls.map((item) => {
+                      const exp = getExpirationDetails(item.expiresAt);
+                      return (
+                        <tr key={item._id} className={exp.isExpired ? "row-expired" : ""}>
+                          <td>
+                            <div className="table-link-cell">
+                              <a
+                                href={getAbsoluteShortUrl(item.shortCode)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="short-url-link"
+                              >
+                                {item.shortCode}
+                              </a>
+                              <span className={`alias-badge ${item.isCustom ? "custom-badge" : "auto-badge"}`}>
+                                {item.isCustom ? "Custom" : "Auto"}
+                              </span>
+                              <span className={`status-badge ${exp.isExpired ? "status-expired" : "status-active"}`}>
+                                {exp.statusLabel}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="original-url-text" title={item.originalUrl}>
+                              {item.originalUrl}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="clicks-count-text">
+                              {item.clickCount || 0}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="expiry-text">{exp.text}</span>
+                          </td>
+                          <td>
+                            <div className="table-actions-cell">
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(item._id, item.shortCode)}
+                                className={`btn-action-small ${copiedId === item._id ? "copied" : ""}`}
+                                aria-label="Copy link"
+                              >
+                                {copiedId === item._id ? "Copied!" : "Copy"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setQrUrl(getAbsoluteShortUrl(item.shortCode))}
+                                className="btn-action-small"
+                                aria-label="View QR"
+                              >
+                                QR
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleEditStart(item._id, item.originalUrl)}
+                                className="btn-action-small"
+                                aria-label="Edit URL"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteRequest(item._id)}
+                                className="btn-action-small btn-delete"
+                                aria-label="Delete link"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards View */}
+              <div className="mobile-cards-view">
+                {sortedUrls.map((item) => {
+                  const exp = getExpirationDetails(item.expiresAt);
+                  return (
+                    <div key={item._id} className={`mobile-card ${exp.isExpired ? "card-expired" : ""}`}>
+                      <div className="card-row-top">
+                        <a
+                          href={getAbsoluteShortUrl(item.shortCode)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="short-url-link"
+                        >
+                          {item.shortCode}
+                        </a>
+                        <span className="clicks-badge">
+                          {item.clickCount || 0} clicks
+                        </span>
+                      </div>
+                      
+                      <p className="original-url-text">{item.originalUrl}</p>
+
+                      <div className="card-badges-row">
+                        <span className={`alias-badge ${item.isCustom ? "custom-badge" : "auto-badge"}`}>
+                          {item.isCustom ? "Custom" : "Auto"}
+                        </span>
+                        <span className={`status-badge ${exp.isExpired ? "status-expired" : "status-active"}`}>
+                          {exp.statusLabel}
+                        </span>
+                        <span className="expiry-text">{exp.text}</span>
+                      </div>
+
+                      <div className="card-actions">
                         <button
                           type="button"
-                          onClick={() => handleEditSave(item._id)}
-                          className="btn-action btn-edit-save"
-                          disabled={isSaving}
-                          aria-label="Save changes"
+                          onClick={() => handleCopy(item._id, item.shortCode)}
+                          className={`btn-action-small ${copiedId === item._id ? "copied" : ""}`}
                         >
-                          {isSaving ? <span className="spinner-inline" /> : null}
-                          {isSaving ? "Saving…" : "Save"}
+                          {copiedId === item._id ? "Copied!" : "Copy"}
                         </button>
                         <button
                           type="button"
-                          onClick={handleEditCancel}
-                          className="btn-action"
-                          disabled={isSaving}
-                          aria-label="Cancel editing"
+                          onClick={() => setQrUrl(getAbsoluteShortUrl(item.shortCode))}
+                          className="btn-action-small"
                         >
-                          Cancel
+                          QR
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleEditStart(item._id, item.originalUrl)}
+                          className="btn-action-small"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRequest(item._id)}
+                          className="btn-action-small btn-delete"
+                        >
+                          Delete
                         </button>
                       </div>
-                    ) : (
-                      /* ── View Mode ── */
-                      <>
-                        <div className="url-info">
-                          <div className="short-url-container">
-                            <a
-                              href={getAbsoluteShortUrl(item.shortCode)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="short-url-link"
-                            >
-                              {getAbsoluteShortUrl(item.shortCode)}
-                            </a>
-                            <span className={`alias-badge ${item.isCustom ? "custom-badge" : "auto-badge"}`}>
-                              {item.isCustom ? "Custom" : "Auto"}
-                            </span>
-                            <span className={`status-badge ${exp.isExpired ? "status-expired" : "status-active"}`}>
-                              {exp.statusLabel}
-                            </span>
-                            <span className="click-badge">
-                              {item.clickCount || 0} clicks
-                            </span>
-                          </div>
-                          <p className="original-url">{item.originalUrl}</p>
-
-                          <div className="url-metadata">
-                            <div className="meta-item">
-                              <span aria-hidden="true">📅</span>
-                              <span>Created: {new Date(item.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span>
-                            </div>
-                            <div className="meta-item">
-                              <span aria-hidden="true">🕒</span>
-                              <span>Last Visited: {item.lastVisited ? new Date(item.lastVisited).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Never"}</span>
-                            </div>
-                            <div className="meta-item">
-                              <span aria-hidden="true">⏳</span>
-                              <span>Expiration: {exp.text}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="url-actions">
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(item._id, item.shortCode)}
-                            className={`btn-action btn-action-copy ${copiedId === item._id ? "btn-action-copied" : ""}`}
-                            aria-label={copiedId === item._id ? "Copied!" : "Copy short URL"}
-                          >
-                            {copiedId === item._id ? "✓ Copied!" : "Copy"}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setQrUrl(getAbsoluteShortUrl(item.shortCode))}
-                            className="btn-action"
-                            aria-label="View QR code"
-                          >
-                            View QR
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleEditStart(item._id, item.originalUrl)}
-                            className="btn-action"
-                            aria-label="Edit destination URL"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRequest(item._id)}
-                            className="btn-action btn-action-delete"
-                            aria-label="Delete this link"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -71,10 +71,16 @@ function Home() {
   };
 
   return (
-    <div>
+    <>
       {/* Navbar */}
       <nav className="navbar">
-        <Link to="/" className="logo">LinkForge</Link>
+        <Link to="/" className="logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="logo-icon" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          <span>LinkForge</span>
+        </Link>
         <div className="nav-links">
           {isAuthenticated ? (
             <>
@@ -101,8 +107,8 @@ function Home() {
         {/* Shortener Card */}
         <div className="shortener-card">
           <form className="shortener-form" onSubmit={handleSubmit} noValidate>
-            <div className="form-group-wrapper">
-              <div className="input-group">
+            <div className="form-grid">
+              <div className="input-group form-group-full">
                 <label className="input-label" htmlFor="destination-url">Destination URL</label>
                 <input
                   id="destination-url"
@@ -130,7 +136,7 @@ function Home() {
                   disabled={isLoading}
                   autoComplete="off"
                 />
-                <span className="input-help-text">Leave blank to generate a random code automatically.</span>
+                <span className="input-help-text">Leave blank for automatic code.</span>
               </div>
 
               <div className="input-group">
@@ -208,7 +214,7 @@ function Home() {
           </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }
 
